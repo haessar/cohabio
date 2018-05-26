@@ -36,14 +36,23 @@ cities = pd.read_csv(cities_path, sep='\t', names=cols, encoding='utf-8', low_me
 cities = cities.sort_values(by=['population'], ascending=False).reset_index(drop=True)
 cities['name'] = cities['asciiname']
 cities = cities[get_table_columns_intersect(cols, PlaceData)]
-for idx, city in tqdm(cities.iterrows(), total=len(cities), desc='Global cities (population > 5000)'):
-    place, created = PlaceData.objects.get_or_create(**city)
-    if created:
-        try:
-            place.save()
-        except Exception as e:
-            tqdm.write(e)
-            tqdm.write('Unable to save {} ({}) to database.'.format(place.city.name, city.country_code))
+
+PlaceData.objects.all().delete()
+
+PlaceData.objects.bulk_create(
+    PlaceData(**vals) for vals in cities.to_dict('records')
+)
+
+
+
+# for idx, city in tqdm(cities.iterrows(), total=len(cities), desc='Global cities (population > 5000)'):
+#     place, created = PlaceData.objects.get_or_create(**city)
+#     if created:
+#         try:
+#             place.save()
+#         except Exception as e:
+#             tqdm.write(e)
+#             tqdm.write('Unable to save {} ({}) to database.'.format(place.city.name, city.country_code))
 
 # Process specific cities data.
 
