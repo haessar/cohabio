@@ -1,0 +1,43 @@
+{% extends 'mapper/base.html' %}
+{% block title %}Contact - {{ block.super }}{% endblock %}
+
+{% block content %}
+<h1 class="sub-heading" style="font-size: 40px;">Contact - We appreciate your feedback!</h1>
+
+<hr>
+
+
+
+<form role="form" method="post" style="display:inline;" id="myForm" action="{% if from %}?next={{ from }}{% endif %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <br>
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <button class="btn btn-success " style="font-size: 25px;" type="submit" value="submit" name="submit">Submit</button>
+</form>
+
+<form role="form" method="post" style="display:inline;" action="{% if from %}?next={{ from }}{% endif %}">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <button type="submit" class="btn btn-default" style="font-size: 25px;" name="back">Back</button>
+</form>
+
+<form role="form" method="post" style="display:inline;" action="{% url 'mapper:index' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-default" style="font-size: 25px;" value="back" name="back">Home</button>
+</form>
+
+
+<script>
+$(document).ready(function() {
+    $("#backButton").click(function(event) {
+        if( !confirm('Are you sure that you want to submit the form') ){
+            event.preventDefault();
+        }
+
+    });
+});
+</script>
+
+
+{% endblock %}

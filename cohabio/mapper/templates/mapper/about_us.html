@@ -1,0 +1,35 @@
+{% extends 'mapper/base.html' %}
+{% block title %}About - {{ block.super }}{% endblock %}
+
+{% block content %}
+
+<h1 class="sub-heading" style="font-size: 40px;">About</h1>
+
+<hr>
+
+<maintext>
+    <div style="text-align: justify; text-justify: inter-word;">
+        In an ideal world, we would all live a comfortable distance from our places of work; for the sake of
+        healthier, happier, and more efficient societies. Unfortunately, this is often not possible. Whether the cause is
+        economic pressure or misfortune, cohabio can help us find a place to live that maximises the time we have
+        with friends and loved ones, at the expense of a hefty commute.
+        <br>
+        <br>
+        Our algorithms compare thousands of potential home locations based on the minimum expected commuting time for both
+        you and your partner. They take into account your preferred method(s) of transportation, and whether you have a
+        hard limit on the length of time you are willing to travel. Cohabio is the only site that provides this service for
+        any location on planet Earth!
+    </div>
+</maintext>
+
+<br>
+
+<!--<a type="button" class="btn btn-default" style="font-size: 25px;" href="{% url 'mapper:index' %}">Home</a>-->
+<form role="form" method="post" style="display:inline;" action="{% url 'mapper:index' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-default" style="font-size: 25px;" value="back" name="back">Home</button>
+</form>
+
+
+
+{% endblock %}

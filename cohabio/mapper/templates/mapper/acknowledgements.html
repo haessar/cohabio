@@ -1,0 +1,36 @@
+{% extends 'mapper/base.html' %}
+{% block title %}Acknowledgements - {{ block.super }}{% endblock %}
+
+{% block content %}
+
+<h1 class="sub-heading" style="font-size: 40px;">Acknowledgements</h1>
+
+<hr>
+
+<maintext>
+    <ul>
+        <li><a href="http://www.geonames.org/" target="_blank">GeoNames</a>
+            - Provided database of global cities from which suggestions are made.</li>
+        <li><a href="https://developers.google.com/maps/documentation/" target="_blank">Google</a>
+            - Google Maps Distance Matrix and Google Maps Time Zone APIs</li>
+        <li><a href="http://orr.gov.uk/statistics/published-stats/station-usage-estimates" target="_blank">ORR</a>
+            - Estimates of UK train station usage.</li>
+        <li><a href="https://data.london.gov.uk/dataset/london-underground-performance-reports/" target="_blank">TfL</a>
+            - Estimates of London tube station usage.</li>
+        <li><a href="https://tfl.gov.uk/info-for/open-data-users/" target="_blank">TfL</a>
+            - Database of all public transport stations in the Greater London Area.</li>
+        <li><a href="https://developer.wmata.com/docs/services/" target="_blank">WMATA</a>
+            - API for all Washington DC metro stations.</li>
+    </ul>
+</maintext>
+
+<br>
+
+<!--<a type="button" class="btn btn-default" style="font-size: 25px;" href="{% url 'mapper:index' %}">Home</a>-->
+<form role="form" method="post" style="display:inline;" action="{% url 'mapper:index' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-default" style="font-size: 25px;" value="back" name="back">Home</button>
+</form>
+
+
+{% endblock %}

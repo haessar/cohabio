@@ -1,0 +1,48 @@
+{% load staticfiles %}
+<!doctype html>
+<html>
+<head>
+    <title>
+         {% block title %}cohabio{% endblock %}
+    </title>
+    <link rel="stylesheet" type="text/css" href="{% static 'mapper/bootstrap.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'mapper/title.css' %}" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Dosis:400|Oleo+Script" rel="stylesheet" />
+
+    <style>
+    body {
+        margin: auto;
+        top: 50px;
+        height: 80%;
+        width: 70%;
+        background: #A3D7E1;
+        font-family: 'Dosis', sans-serif;
+        font-size: 20px;
+    }
+
+    maintext {
+        font-family: 'Dosis', sans-serif;
+        font-size: 30px;
+    }
+    </style>
+    <script>
+    function goBack() {
+        window.history.back()
+    }
+    </script>
+    {% block header %}{% endblock %}
+</head>
+<body>
+    <header>
+        <h1>
+            <span class="title_first">cohab</span><span class="title_last">io</span>
+        </h1>
+    </header>
+    {% block content %}{% endblock %}
+    {% block footer %}{% endblock %}
+
+    <hr>
+</body>
+</html>

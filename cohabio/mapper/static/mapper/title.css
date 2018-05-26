@@ -1,0 +1,24 @@
+.title_first {
+    font-family: 'Oleo Script', cursive;
+    /*Impact, Verdana;/*, Corbel,"Gill Sans Nova";*/
+    color: black;
+    font-size:120px;
+    /*font-weight: lighter;*/
+}
+
+.title_last {
+    font-family: 'Oleo Script', cursive;
+    color: red;
+    font-size:120px;
+    /*font-style:italic;*/
+    /*font-weight: lighter;*/
+}
+
+.sub-heading {
+    font-family: 'Dosis', sans-serif;
+    font-size:30px;
+}
+
+.map-nav-btn {
+    font-family: 'Dosis', sans-serif;
+}
