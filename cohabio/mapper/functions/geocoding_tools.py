@@ -13,7 +13,7 @@ def gps_from_km_sq(km, loc_lat):
     return lat, lng
 
 class GeoLocator(GoogleV3):
-    api_key = 'AIzaSyDwNieaCFdsNt5Xp_Kuq-YK0bG2uUX5cI8'
+    api_key = 'AIzaSyDoMTXf7d-um7O6tmp31bsTDSahBkMeM6c'
     def __init__(self, logger):
         super(GeoLocator, self).__init__(api_key=self.api_key)
         self.logger = logger
