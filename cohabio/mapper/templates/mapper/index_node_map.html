@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+        <title>cohabio | Find a place to commute from together</title>
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<meta name="description" content="cohabio is a free global service providing suggested home location for cohabitants that commute to different work places.">
+		<script src="{% static 'mapper/spin.min.js' %}"></script>
+        <script src="{% static 'mapper/ladda.min.js' %}"></script>
+		<link rel="stylesheet" href="{% static 'mapper/ladda-themeless.min.css' %}" />
+        <link rel="stylesheet" type="text/css" href="{% static 'mapper/bootstrap.css' %}" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+        <link href="{% static 'mapper/bootstrap-slider.css' %}" rel="stylesheet" />
+        <script src="{% static 'mapper/bootstrap-slider.js' %}"></script>
+        <link rel="stylesheet" type="text/css" href="{% static 'mapper/title.css' %}" />
+        <link href="https://fonts.googleapis.com/css?family=Dosis:400|Oleo+Script" rel="stylesheet" />
+        <link rel='shortcut icon' type="image/png" href="{% static 'mapper/favicon.ico' %}" />
+	    <script>
+        $(document).ready( function() {
+            $("#sl1").slider({
+                tooltip: 'hide',
+	            selection: 'before'
+            });
+            $("#sl1").on("slide", function(slideEvt) {
+	            $("#sl1SliderVal").text(slideEvt.value);
+            });
+            $("#sl2").slider({
+                tooltip: 'hide',
+                selection: 'before'
+            });
+            $("#sl2").on("slide", function(slideEvt) {
+	            $("#sl2SliderVal").text(slideEvt.value);
+            });
+        });
+        </script>
+        <script>
+            Ladda.bind( '.button-demo .ladda-button', { timeout: 2000 } );
+        </script>
+        {% if api_key %}
+            <script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&libraries=places&language=en"></script>
+        {% endif %}
+        <script>
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+            ga('create', 'UA-84104870-1', 'auto');
+            ga('send', 'pageview');
+        </script>
+    </head>
+    <body>
+        <div class="jumbotron">
+          <div class="container">
+            <h1>
+                <span class="title_first">cohab</span><span class="title_last">io</span>
+            </h1>
+            <h3 class="sub-heading">Moving to a new city? Want to live together, but work in different places? We can help.</h3>
+          </div>
+        </div>
+        <form method="POST" action="{% url 'mapper:node_map' %}" id="localStorageTest">
+            {% csrf_token %}
+            <div class="container">
+                {% if error_message %}<h4 style="color:red; font-family: 'Dosis', sans-serif;"><strong>{{ error_message }}</strong></h4>{% endif %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <h4 style="color:red; font-family: 'Dosis', sans-serif;" class="messages"><strong>{{ message }}</strong></h4>
+                    {% endfor %}
+                {% endif %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <br>
+                        <div class="input-group">
+                            <span class="input-group-addon" id="basic-addon1">Where you work:</span>
+                            <input type="text" class="form-control" placeholder="Your workplace" aria-describedby="basic-addon1" name="textfield1" id="autocomplete1" value="{{loc1}}">
+                            <script>
+                              var input = document.getElementById('autocomplete1');
+                              new google.maps.places.Autocomplete(input);
+                            </script>
+                        </div>
+                        <br>
+                        <div class="container-fluid">
+                            <span>How long do you want to travel?&nbsp;&nbsp;</span>
+                            <input type="text" name="maxcommute1" value="{{tim1}}" id="sl1" data-slider-id='time_slider' data-slider-min="0" data-slider-max="90" data-slider-step="5" data-slider-value="{{tim1}}" />
+                            <span id="sl1CurrentSliderValLabel">&nbsp;&nbsp;<b><span id="sl1SliderVal">{{tim1}}</span> mins</b></span>
+                        </div>
+                        <br>
+                        <div class="container-fluid">
+                            <span>Your preferred mode of transport:&nbsp;&nbsp;</span>
+                            <div class="btn-group" data-toggle="buttons">
+                                <label class="btn btn-primary {{tra1.0}}">
+                                    <input type="checkbox" autocomplete="off" name="transport1" value="walking" {{che1.0}}>Walk
+                                </label>
+                                <label class="btn btn-primary {{tra1.1}}">
+                                    <input type="checkbox" autocomplete="off" name="transport1" value="bicycling" {{che1.1}}>Bike
+                                </label>
+                                <label class="btn btn-primary {{tra1.2}}">
+                                    <input type="checkbox" autocomplete="off" name="transport1" value="driving" {{che1.2}}>Car
+                                </label>
+                                <label class="btn btn-primary {{tra1.3}}">
+                                    <input type="checkbox" autocomplete="off" name="transport1" value="transit" {{che1.3}}>Public Transport
+                                </label>
+                            </div>
+                        </div>
+                        <br>
+                    </div>
+                    <div class="col-md-6">
+                        <br>
+                        <div class="input-group">
+                            <span class="input-group-addon" id="basic-addon2">Where they work:</span>
+                            <input type="text" class="form-control" placeholder="Their workplace" aria-describedby="basic-addon2" name="textfield2" id="autocomplete2" value="{{loc2}}">
+                            <script>
+                              var input = document.getElementById('autocomplete2');
+                              new google.maps.places.Autocomplete(input);
+                            </script>
+                        </div>
+                        <br>
+                        <div class="container-fluid">
+                            <span>How long do they want to travel?&nbsp;&nbsp;</span>
+                            <input type="text" name="maxcommute2" value="{{tim2}}" id="sl2" data-slider-id='time_slider2' data-slider-min="0" data-slider-max="90" data-slider-step="5" data-slider-value="{{tim2}}"/>
+                            <span id="sl2CurrentSliderValLabel">&nbsp;&nbsp;<b><span id="sl2SliderVal">{{tim2}}</span> mins</b></span>
+                        </div>
+                        <br>
+                        <div class="container-fluid">
+                            <span>Their preferred mode of transport:&nbsp;&nbsp;</span>
+                            <div class="btn-group" data-toggle="buttons">
+                                <label class="btn btn-danger {{tra2.0}}">
+                                    <input type="checkbox" autocomplete="off" name="transport2" value="walking" {{che2.0}}>Walk
+                                </label>
+                                <label class="btn btn-danger {{tra2.1}}">
+                                    <input type="checkbox" autocomplete="off" name="transport2" value="bicycling" {{che2.1}}>Bike
+                                </label>
+                                <label class="btn btn-danger {{tra2.2}}">
+                                    <input type="checkbox" autocomplete="off" name="transport2" value="driving" {{che2.2}}>Car
+                                </label>
+                                <label class="btn btn-danger {{tra2.3}}">
+                                    <input type="checkbox" autocomplete="off" name="transport2" value="transit" {{che2.3}}>Public Transport
+                                </label>
+                            </div>
+                        </div>
+                        <br>
+                    </div>
+                </div>
+                <br>
+                <br>
+                <section>
+                    <button class="btn btn-success btn-lg ladda-button" data-color="green" data-style="expand-left" type="submit"><span class="ladda-label">Search</span></button>            <!--<button id="about-btn"> Click Me - I'm Javascript on Speed</button>-->
+                </section>
+                <hr>
+            </div>
+        </form>
+        <script>
+			// Bind normal buttons
+			Ladda.bind( 'section:not(.progress-demo) button', { timeout: 1000000 } );
+		</script>
+        <style>
+            #navigation
+            {
+                font-size: 20px;
+                font-family: 'Dosis', sans-serif;
+            }
+            #navigation ul
+            {
+                margin: 0;
+                padding: 0;
+            }
+            #navigation ul li
+            {
+                list-style-type: none;
+                display: inline;
+            }
+            #navigation li:not(:first-child):before {
+                content: " | ";
+            }
+        </style>
+        <footer class="container">
+            <div class="row">
+                <div id="navigation">
+                    <div align="left" class="col-md-6">
+                        <ul>
+                            <li><a href="{% url 'mapper:contact' %}?from={{ request.path|urlencode }}">Contact</a></li>
+                            <li><a href="{% url 'mapper:about' %}">About</a></li>
+                            <li><a href="{% url 'mapper:acknowledgements' %}">Acknowledgements</a></li>
+{#                            <li><a href="{% url 'mapper:support' %}">Support Us</a></li>#}
+                        </ul>
+                    </div>
+                    <div align="right" class="col-md-6">
+                        <span>A Will Haese-Hill and David C. Gershlick project</span>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </body>
+</html>

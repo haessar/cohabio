@@ -1,0 +1,264 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--Leaflet-->
+    <!--<link rel="stylesheet" href="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.css"/>-->
+    <!--<script src="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>-->
+    <link rel="stylesheet" href="{% static 'mapper/leaflet.css' %}"/>
+    <script src="{% static 'mapper/leaflet.js' %}"></script>
+    <!--Font Awesome-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css"/>
+    <!--Bootstrap-->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!--Fonts-->
+    <link href="https://fonts.googleapis.com/css?family=Dosis:400|Oleo+Script|Raleway" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="{% static 'mapper/title.css' %}" />
+    <!--Leaflet Beautify Marker-->
+    <link rel="stylesheet" href="{% static 'mapper/leaflet-beautify-marker-icon.css' %}">
+    <script src="{% static 'mapper/leaflet-beautify-marker-icon.js' %}"></script>
+    <script src="{% static 'mapper/leaflet-beautify-marker.js' %}"></script>
+
+    <title>cohabio | Search results map</title>
+    <link rel="shortcut icon" type="image/png" href="{% static 'mapper/favicon.ico' %}"/>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-84104870-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+
+    <script type="text/javascript">
+
+        function showMarkers(markers,map,colours) {
+
+        //Loop through the markers array
+
+             for (var i=0; i<markers.length; i++) {
+
+                options = {
+                    iconShape: 'doughnut',
+                    borderWidth: 5,
+                    borderColor: colours[i]
+                };
+
+                var lon = markers[i][1];
+                var lat = markers[i][0];
+
+                var markerLocation = new L.LatLng(lat, lon);
+                var marker = new L.BeautifyMarker.marker( markerLocation , { icon: L.BeautifyIcon.icon(options), draggable: false });
+                map.addLayer(marker);
+
+                // define rectangle geographical bounds
+                //var bounds = [[54.559322, -5.767822], [56.1210604, -3.021240]];
+                // create an orange rectangle
+                //L.rectangle(bounds, {color: "#ff7800", weight: 1, fill:false}).addTo(map);
+
+             }
+        }
+
+
+    </script>
+
+    <script>
+         window.onload = function () {
+
+            var el = document.getElementById("clickMe");
+
+            if (el.addEventListener)
+                el.addEventListener("click", function(){
+                    showMarkers(markers,map,colours);
+                }, false);
+            else if (el.attachEvent)
+                el.attachEvent('onclick', function(){
+                    showMarkers(markers,map,colours);
+                });
+
+            {% if mean_gps %}
+                var map = L.map('map').setView({{mean_gps}}, 10);
+            {% endif %}
+
+            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            var markers = [];
+            var colours = [];
+            {% if places %}
+                {% for item1, item2 in places %}
+                    markers.push( {{item1}} );
+                    colours.push( '{{item2}}');
+                 {% endfor %}
+            {% endif %}
+
+            {% if work_places %}
+                {% for item1, item2, item3, item4 in work_places %}
+
+                    options = {
+                        isAlphaNumericIcon: false
+                            , icon: 'briefcase'
+                            , iconShape: 'marker'
+                            , borderColor: '{{item4}}'
+                            , textColor: '{{item4}}'
+                    };
+                    L.BeautifyMarker.marker( {{item1}}, { icon: L.BeautifyIcon.icon(options), draggable: false }).addTo(map).bindPopup( '<h3>{{item2}}</h3><p>Where {{item3}} work</p>');
+                 {% endfor %}
+            {% endif %}
+
+             {% if boxes %}
+                {% for item1, item2 in boxes %}
+                    L.rectangle({{ item1 }}, {color: "{{ item2 }}", weight: 1}).addTo(map);
+                {% endfor %}
+             {% endif %}
+
+
+            $(function() { // Force a click of the "more markers" button so that 10 markers are shown immediately
+                $('#clickMe').click();
+            });
+
+         }
+    </script>
+            <!--background-color: #99ccff; OLD-->
+
+    <style type="text/css">
+        .container-fluid {
+            background-color: #a3d7e1;
+            padding-top: 0.3%;
+            border-bottom-style: solid;
+            border-bottom-width: 4px;
+            border-bottom-color: red;
+            margin: 0px;
+        }
+
+        .title_first {
+            font-family: 'Oleo Script', cursive;
+            color: black;
+            font-size: 300%;
+        }
+
+        .title_last {
+            font-family: 'Oleo Script', cursive;
+            color: red;
+            font-size: 300%;
+            padding-right: 10%;
+        }
+
+        body {
+            padding-top: 66px;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        html, body, #container-fluid {
+            height: 100%;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .modal-backdrop.in {
+            z-index: auto;
+        }
+
+        ul {
+            padding-top: 10px;
+        }
+    </style>
+    <style>
+        #map-wrapper {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            <!--border: 1px solid black;-->
+        }
+
+        #button-wrapper {
+            position: absolute;
+            top: 10%;
+            right: 5%;
+            width: 10%;
+            <!--border: 1px solid red;-->
+        }
+
+        .btn-circle {
+          width: 30px;
+          height: 30px;
+          text-align: center;
+          padding: 6px 0;
+          font-size: 12px;
+          line-height: 1.428571429;
+          border-radius: 15px;
+        }
+        .btn-circle.btn-lg {
+          width: 50px;
+          height: 50px;
+          padding: 10px 16px;
+          font-size: 18px;
+          line-height: 1.33;
+          border-radius: 25px;
+        }
+        .popover-content {
+            font-size: 10px;
+        }
+
+    </style>
+
+
+</head>
+<body>
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <p class="navbar-brand">
+                <span class="title_first">cohab</span><span class="title_last">io</span>
+            </p>
+        </div>
+        <div class="collapse navbar-collapse" id="myNavbar">
+            <ul class="nav navbar-nav">
+                <form method="POST" action="{% url 'mapper:index_node_map' %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-default" style="font-family: 'Dosis', sans-serif; font-size:20px;">Search again</button>
+                </form>
+                <a type="button" class="btn btn-default" style="font-family: 'Dosis', sans-serif; font-size:20px;" href="{% url 'mapper:contact' %}?from={{ request.path|urlencode }}">Your Feedback</a>
+
+            </ul>
+        </div>
+    </div>
+</nav>
+<!--<div id="map"></div>-->
+<div id="map-wrapper">
+    <div id="map"></div>
+    <div id="button-wrapper" style="display:none;">
+        <!--<a class="btn btn-success waves-effect btn-lg pull-right">More Results</a>-->
+        <!--<button type="button" class="btn btn-success btn-circle waves-effect btn-lg pull-right" id="clickMe" title="Show 5 more results">-->
+            <!--<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>-->
+        <!--</button>-->
+        <!--<button type="button" class="btn btn-success btn-circle waves-effect btn-lg" id="clickMe" title=""-->
+        <!--data-placement="auto left" data-toggle="popover" data-content="Show 5 more results" data-trigger="focus">-->
+            <!--<span class="glyphicon glyphicon-plus" style="color:blue;" aria-hidden="true"></span>-->
+        <!--</button>-->
+        <button type="button" class="btn btn-success waves-effect pull-right" id="clickMe"
+                title="Show 5 more results">
+            <span class="fa fa-plus-circle fa-3x" aria-hidden="true"></span>
+        </button>
+        <!--<button style="margin:7px 15px 17px 0;" type="button" data-placement="bottom" class="btn btn-md btn-success" data-toggle="popover" title="" data-content="Some content inside the popover" data-original-title="Popover Header">Click To Toggle Popover</button>-->
+    </div>
+</div>
+
+</body>
+</html>
