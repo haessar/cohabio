@@ -51,6 +51,8 @@ class PlaceData(models.Model):
     population = models.IntegerField(null=True)
     usage = models.IntegerField(null=True)
     country_code = models.CharField(max_length=5)
+    source = models.CharField(max_length=10)
+
     def __str__(self):
         return self.name
 
