@@ -8,5 +8,5 @@ gmaps_client = googlemaps.Client(
     client_id=GOOGLE_CLIENT_ID
 )
 
-''' Daily quota limit '''
-max_entries = 2500
+# Daily quota limit
+MAX_ENTRIES = 100000

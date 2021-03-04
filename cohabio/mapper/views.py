@@ -104,7 +104,7 @@ def search(request):
     if request.method == 'POST':
         quota_today = request_counter()
         logger.info('Total entries before: %i' % quota_today)
-        if quota_today > max_entries:
+        if quota_today > MAX_ENTRIES:
             return render(request, 'mapper/splashscreen.html')
         search_id1 = request.POST.get('textfield1', None)
         search_id2 = request.POST.get('textfield2', None)

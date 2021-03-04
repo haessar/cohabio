@@ -126,9 +126,9 @@ def which_duration(output, user, origin, destinations, transport, max_commute):
     """
     arrival = next_week_day(origin)
     count = 0
-    # Maximum of 100 destinations in a given distance_matrix API call
-    for batch in batches(destinations, n=100):
-        result = gmaps.distance_matrix(
+    # Maximum of 25 destinations in a given distance_matrix API call (without premium)
+    for batch in batches(destinations, n=25):
+        result = gmaps_client.distance_matrix(
             origins=((dest.latitude, dest.longitude) for dest in batch),
             destinations=(origin.latitude, origin.longitude),
             mode=transport,
@@ -168,7 +168,7 @@ def probe_gps_intersect(locations, modes, times, geolocator):
         user = 'user' + str(i + 1)
         for mode in prefs[1]:
             entry_count += len(intersect)
-            if quota_today + entry_count >= max_entries:
+            if quota_today + entry_count >= MAX_ENTRIES:
                 print('Maximum daily quota reached during {} distance_matrix API call'.format(user))
                 return 'maxed', entry_count
             try:
