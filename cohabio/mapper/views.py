@@ -29,6 +29,7 @@ def index(request):
         'tim2': str(request.session.get('sesh_mcom2', 45)),
         'che1': request.session.get('sesh_chec1', ['', '', '', '']),
         'che2': request.session.get('sesh_chec1', ['', '', '', '']),
+        'api_key': GOOGLE_KEY,
     }
     return render(request, 'mapper/index_bootstrap.html', context)
 
@@ -247,11 +248,11 @@ def contact(request):
                 form_content = request.POST.get('content', '')
                 # Email the profile with the contact information
                 template = get_template('mapper/contact_template.txt')
-                context = Context({
+                context = {
                     'contact_name': contact_name,
                     'contact_email': contact_email,
                     'form_content': form_content,
-                })
+                }
                 content = template.render(context)
                 email = EmailMessage(
                     "New contact form submission",
