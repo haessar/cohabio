@@ -4,4 +4,3 @@ from mapper.models import PlaceData
 
 admin.site.register(UserInfo)
 admin.site.register(PlaceData)
-

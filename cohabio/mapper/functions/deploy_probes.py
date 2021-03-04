@@ -111,10 +111,12 @@ def adjust_intersect(locations, modes, times):
         li.iterations += 1
     return li.intersect
 
+
 def batches(iterable, n):
     l = len(iterable)
     for ndx in range(0, l, n):
         yield iterable[ndx:min(ndx + n, l)]
+
 
 def which_duration(output, user, origin, destinations, transport, max_commute):
     """
@@ -147,6 +149,7 @@ def which_duration(output, user, origin, destinations, transport, max_commute):
     if count == 0:
         raise UserFilterEmpty('{} locations empty after filtering for max commute time for {}'.format(user, transport))
     print('{} locations after filtering for max commute time for {}: {}'.format(user, transport, count))
+
 
 def probe_gps_intersect(locations, modes, times, geolocator):
     """

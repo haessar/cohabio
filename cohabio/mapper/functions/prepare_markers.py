@@ -1,7 +1,9 @@
 """
 Functions for ordering and preparing the markers for HTML
 """
+
 from collections import OrderedDict
+
 
 def html_icon(transport):
     if transport == 'walking':
@@ -13,6 +15,7 @@ def html_icon(transport):
     elif transport == 'transit':
         return 'fa-train'
     return
+
 
 def html_check(transports):
     """For transport option memory"""
@@ -53,6 +56,7 @@ def htmler(place, values):
         mean=values['mean'],
         std=values['stds']
     )
+
 
 def sorter(data, std_weight):
     return OrderedDict(sorted(data.items(), key=lambda x: x[1]['mean'] + std_weight * x[1]['stds']))

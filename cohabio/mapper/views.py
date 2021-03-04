@@ -154,11 +154,11 @@ def results_report(request):
     return response
 
 
-def acknowledgements (request):
+def acknowledgements(request):
     return render(request, 'mapper/acknowledgements.html')
 
 
-def about (request):
+def about(request):
     return render(request, 'mapper/about_us.html')
 
 
