@@ -44,7 +44,9 @@
         <script>
             Ladda.bind( '.button-demo .ladda-button', { timeout: 2000 } );
         </script>
-        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCaFOvBe4pgrvksrj3XPMb7gnX2blXHMio&libraries=places&language=en"></script>
+        {% if api_key %}
+            <script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&libraries=places&language=en"></script>
+        {% endif %}
         <script>
             (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
             (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
