@@ -202,3 +202,19 @@ def contact(request):
         'form': form_class,
         'from': request.GET.get('from', None),
     })
+
+
+def bad_request(request):
+    return render(request, 'mapper/400.html', {'status_code': 400})
+
+
+def permission_denied(request):
+    return render(request, 'mapper/403.html', {'status_code': 403})
+
+
+def page_not_found(request):
+    return render(request, 'mapper/404.html', {'status_code': 404})
+
+
+def server_error(request):
+    return render(request, 'mapper/500.html', {'status_code': 500})

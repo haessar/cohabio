@@ -16,6 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
+
+handler400 = 'mapper.views.bad_request'
+handler403 = 'mapper.views.permission_denied'
+handler404 = 'mapper.views.page_not_found'
+handler500 = 'mapper.views.server_error'
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('mapper.urls', namespace='mapper'))
