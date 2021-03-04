@@ -1,11 +1,8 @@
 from datetime import datetime, timedelta
-import pytz
-import requests
 import time
-import urllib
 
 from django.db.models import Sum
-from ..models import UserInfo
+import pytz
 
 from mapper.models import UserInfo
 from mapper.functions.google_API import gmaps_client

@@ -3,14 +3,15 @@ Functions that take two independent matrices of location coordinates, and return
 satisfy commute time criteria.
 """
 from collections import defaultdict
-import numpy as np
 from operator import itemgetter
 
-from .google_API import gmaps, max_entries
-from .datetime_tools import next_week_day, request_counter
-from .geocoding_tools import gps_from_km_sq
-from .prepare_markers import htmler
-from ..models import PlaceData
+import numpy as np
+
+from mapper.functions.google_API import gmaps_client, MAX_ENTRIES
+from mapper.functions.datetime_tools import next_week_day, request_counter
+from mapper.functions.geocoding_tools import deg_from_km_sq
+from mapper.functions.prepare_markers import htmler
+from mapper.models import PlaceData
 
 """
 Values represent approximate km^2 box around any origin; a reasonable expected distance of travel for each

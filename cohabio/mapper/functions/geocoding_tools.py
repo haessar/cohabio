@@ -2,8 +2,6 @@ import time
 
 from geopy.exc import GeocoderQuotaExceeded, GeocoderTimedOut
 from geopy.geocoders import GoogleV3
-from geopy.exc import GeocoderQuotaExceeded, GeocoderTimedOut
-from math import cos
 import numpy as np
 
 from cohabio.local_config import GOOGLE_KEY

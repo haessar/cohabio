@@ -1,18 +1,20 @@
 import logging
-from reportlab.pdfgen import canvas
 
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
-from django.template import Context
 from django.template.loader import get_template
 from django.core.mail import EmailMessage
 from django.contrib import messages
-from .forms import ContactForm
-from .functions.datetime_tools import request_counter
-from .functions.geocoding_tools import GeoLocator
-from .functions.google_API import max_entries
-from .functions.main import compare_users
-from .functions.prepare_markers import html_check
+from reportlab.pdfgen import canvas
+
+from cohabio.local_config import GOOGLE_KEY
+from mapper.forms import ContactForm
+from mapper.functions.datetime_tools import request_counter
+from mapper.functions.deploy_probes import UserMatrix, LocationIntersection, adjust_intersect
+from mapper.functions.geocoding_tools import GeoLocator
+from mapper.functions.google_API import MAX_ENTRIES
+from mapper.functions.main import compare_users
+from mapper.functions.prepare_markers import html_check
 
 logger = logging.getLogger(__name__)
 
