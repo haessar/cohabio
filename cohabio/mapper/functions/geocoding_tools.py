@@ -6,14 +6,15 @@ import numpy as np
 
 from cohabio.local_config import GOOGLE_KEY
 
-def gps_from_km_sq(km, loc_lat):
+
+def deg_from_km_sq(d):
     """
     Crude formula to convert d kms to degrees of latitude/longitude.
     Use with caution near poles/equator!
     """
-    lat = km * 0.008983 / 2
-    lng = km * (360 / (cos(loc_lat) * 40075)) / 2
-    return lat, lng
+    km = 0.0089982311916
+    return d * km
+
 
 class GeoLocator(GoogleV3):
     api_key = GOOGLE_KEY

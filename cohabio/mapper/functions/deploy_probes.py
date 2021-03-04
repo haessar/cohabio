@@ -18,10 +18,10 @@ Values represent approximate km^2 box around any origin; a reasonable expected d
 transport mode, when max_commute is 60 minutes (scale_factor).
 """
 modes = {
-    'transit': 250,
-    'driving': 90,
-    'bicycling': 19,
-    'walking': 5
+    'transit': 125,
+    'driving': 45,
+    'bicycling': 10,
+    'walking': 3
 }
 
 # TODO Convert print statements to logger messages in these functions
@@ -37,6 +37,8 @@ class UserMatrix(object):
         self.longitude = origin.longitude
         self.transport = self._reduce_transport_options(transport)
         self.max_commute = max_commute
+        self.bounds = []
+
     @staticmethod
     def _reduce_transport_options(transport):
         """
@@ -52,12 +54,14 @@ class UserMatrix(object):
         that fall within it.
         """
         scale_factor = scale * float(self.max_commute) / 60
-        lat_adj, lng_adj = gps_from_km_sq(modes[self.transport] * scale_factor, self.latitude)
+        coord_adj = deg_from_km_sq(modes[self.transport] * scale_factor)
+        self.bounds = [[self.latitude - abs(coord_adj), self.longitude - 2*abs(coord_adj)],
+                       [self.latitude + abs(coord_adj), self.longitude + 2*abs(coord_adj)]]
         return PlaceData.objects.filter(
-            latitude__gte=self.latitude - abs(lat_adj),
-            latitude__lte=self.latitude + abs(lat_adj),
-            longitude__gte=self.longitude - abs(lng_adj),
-            longitude__lte=self.longitude + abs(lng_adj)
+            latitude__gte=self.bounds[0][0],
+            latitude__lte=self.bounds[1][0],
+            longitude__gte=self.bounds[0][1],
+            longitude__lte=self.bounds[1][1]
         )
 
 
