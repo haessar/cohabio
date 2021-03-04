@@ -10,7 +10,8 @@ from cohabio.local_config import GOOGLE_KEY
 
 def gps_from_km_sq(km, loc_lat):
     """
-    Determines the latitude and longitude coordinates that approximate the lengths of a given km square value.
+    Crude formula to convert d kms to degrees of latitude/longitude.
+    Use with caution near poles/equator!
     """
     lat = km * 0.008983 / 2
     lng = km * (360 / (cos(loc_lat) * 40075)) / 2
@@ -39,8 +40,8 @@ class GeoLocator(GoogleV3):
         return listofcoords
     def average_gps(self, gps1, gps2):
         """
-        Calculates the mean latitude and longitude of two given gps coordinates. This is used to centre the map produced by
-        the compare_users function.
+        Calculates the mean latitude and longitude of two given gps coordinates.
+        This is used to centre the map produced by the compare_users function.
         """
         loc1 = self.geocode(gps1)
         gpsloc1 = [loc1.latitude, loc1.longitude]

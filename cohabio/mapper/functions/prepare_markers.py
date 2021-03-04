@@ -6,6 +6,9 @@ from collections import OrderedDict
 
 
 def html_icon(transport):
+    """
+    Map transport mode to Font Awesome icon.
+    """
     if transport == 'walking':
         return 'fa-male'
     elif transport == 'bicycling':

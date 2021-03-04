@@ -176,7 +176,8 @@ def probe_gps_intersect(locations, modes, times, geolocator):
                 return 'empty', entry_count
     for place, values in output.copy().items():
         if len(values) == len(origins):
-            # User list was already sorted by shortest duration, so we take tuple at 0th index. Duration is at 1st index of this.
+            # User list was already sorted by shortest duration, so we take tuple at 0th index.
+            # Duration is at 1st index of this.
             durations = [values.get(user)[0][1] for user in values]
             values['mean'] = np.mean(durations)
             values['stds'] = np.std(durations)
