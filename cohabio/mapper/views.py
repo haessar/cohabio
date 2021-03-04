@@ -16,6 +16,7 @@ from .functions.prepare_markers import html_check
 
 logger = logging.getLogger(__name__)
 
+
 def index(request):
     context = {
         'loc1': str(request.session.get('sesh_work1', '')),
@@ -105,6 +106,7 @@ def search(request):
         }
         return render(request, 'mapper/map7.html', context)
 
+
 def results_report(request):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="cohabio_report.pdf"'
@@ -151,11 +153,14 @@ def results_report(request):
     p.save()
     return response
 
+
 def acknowledgements (request):
     return render(request, 'mapper/acknowledgements.html')
 
+
 def about (request):
     return render(request, 'mapper/about_us.html')
+
 
 def contact(request):
     form_class = ContactForm

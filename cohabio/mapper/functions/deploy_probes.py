@@ -25,8 +25,10 @@ modes = {
 
 # TODO Convert print statements to logger messages in these functions
 
+
 class UserFilterEmpty(Exception):
     pass
+
 
 class UserMatrix(object):
     def __init__(self, origin, transport, max_commute):
@@ -42,6 +44,7 @@ class UserMatrix(object):
         for key, _ in sorted(modes.items(), key=lambda x: (x[1], x[0]), reverse=True):
             if key in transport:
                 return key
+
     def get_user_matrix(self, scale):
         """
         For a given scaling factor, adjusts a coordinate box around origin location and returns all PlaceData locations
@@ -56,6 +59,7 @@ class UserMatrix(object):
             longitude__lte=self.longitude + abs(lng_adj)
         )
 
+
 class LocationIntersection(object):
     min = 100  # Minimum locations to probe
     max = 200  # Maximum locations to probe
@@ -63,16 +67,20 @@ class LocationIntersection(object):
     idx = 0  # Index values along curve
     scale = 1  # Initial scale factor
     iterations = 0  # Initial iteration number
+
     def update(self, *args):
         self.intersect = args[0] & args[1]
         if self.iterations == 0:
             self.min = min(min(len(arg) for arg in args), self.min)
+
     def decrease_scale(self):
         self.scale -= self.curve[self.idx]
         if self.idx < 7:
             self.idx += 1
+
     def increase_scale(self):
         self.scale += self.curve[-1]
+
 
 def adjust_intersect(locations, modes, times):
     """

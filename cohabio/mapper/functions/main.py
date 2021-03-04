@@ -5,6 +5,7 @@ from .deploy_probes import probe_gps_intersect
 from .prepare_markers import sorter
 from ..models import UserInfo
 
+
 def compare_users(locations, modes, times, geolocator):
     """
     Ties everything together.

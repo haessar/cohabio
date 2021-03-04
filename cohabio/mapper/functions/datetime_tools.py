@@ -34,6 +34,7 @@ def next_week_day(origin):
     else:
         return datetime(today.year, today.month, today.day, 9)
 
+
 def request_counter():
     """
     Function that finds total number of entries made today by querying database
