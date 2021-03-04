@@ -1,16 +1,11 @@
-"""
-Parameters for using Google's distance matrix API
-"""
-
 import googlemaps
 
-'''Dave's API key'''
-# gmaps = googlemaps.Client(key = 'AIzaSyCaFOvBe4pgrvksrj3XPMb7gnX2blXHMio')
+from cohabio.local_config import GOOGLE_KEY, GOOGLE_CLIENT_ID
 
-'''Will's API key'''
-gmaps = googlemaps.Client(
-    key='AIzaSyD0igbjpP02XgmFnW390I5IFlyvxTLYgOs',
-    client_id='610519970507-5jm3d5dl2plppmegvl0evsaotlpetqpg.apps.googleusercontent.com'
+
+gmaps_client = googlemaps.Client(
+    key=GOOGLE_KEY,
+    client_id=GOOGLE_CLIENT_ID
 )
 
 ''' Daily quota limit '''

@@ -7,25 +7,18 @@ import urllib
 from django.db.models import Sum
 from ..models import UserInfo
 
-def gmaps_tz_api(location):
-    url = 'https://maps.googleapis.com/maps/api/timezone/json?'
-    qs = urllib.parse.urlencode({
-        'location': ','.join([str(location.latitude), str(location.longitude)]),
-        'timestamp': int(time.time()),
-        'key': 'AIzaSyDBvlGbIx6cQySmj6SpGKnp1J2-VINEvPY',
-    })
-    url += qs
-    return requests.get(url)
+from mapper.models import UserInfo
+from mapper.functions.google_API import gmaps_client
+
 
 def next_week_day(origin):
     """
     Returns the next weekday 9:00am as a datetime object for use in the distance_matrix arrival_time argument.
     """
     today = datetime.today()
-    response = gmaps_tz_api(origin)
-    if response.status_code == 200:
-        res = response.json()
-        offset = (res.get('dstOffset') + res.get('rawOffset')) / 60 ** 2  # UTC offset time in hours
+    response = gmaps_client.timezone(timestamp=int(time.time()), location=(origin.latitude, origin.longitude))
+    if response:
+        offset = (response.get('dstOffset') + response.get('rawOffset')) / 60 ** 2  # UTC offset time in hours
         if today.weekday() < 4:  # Monday-Thursday
             next = today + timedelta(days=1)
         elif today.weekday() >= 4:  # Friday-Sunday

@@ -1,8 +1,12 @@
+import time
+
+from geopy.exc import GeocoderQuotaExceeded, GeocoderTimedOut
 from geopy.geocoders import GoogleV3
 from geopy.exc import GeocoderQuotaExceeded, GeocoderTimedOut
 from math import cos
 import numpy as np
-import time
+
+from cohabio.local_config import GOOGLE_KEY
 
 def gps_from_km_sq(km, loc_lat):
     """
@@ -13,7 +17,8 @@ def gps_from_km_sq(km, loc_lat):
     return lat, lng
 
 class GeoLocator(GoogleV3):
-    api_key = 'AIzaSyDoMTXf7d-um7O6tmp31bsTDSahBkMeM6c'
+    api_key = GOOGLE_KEY
+
     def __init__(self, logger):
         super(GeoLocator, self).__init__(api_key=self.api_key)
         self.logger = logger
