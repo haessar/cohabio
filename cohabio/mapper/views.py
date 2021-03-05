@@ -1,20 +1,23 @@
 import logging
-from reportlab.pdfgen import canvas
 
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
-from django.template import Context
 from django.template.loader import get_template
 from django.core.mail import EmailMessage
 from django.contrib import messages
-from .forms import ContactForm
-from .functions.datetime_tools import request_counter
-from .functions.geocoding_tools import GeoLocator
-from .functions.google_API import max_entries
-from .functions.main import compare_users
-from .functions.prepare_markers import html_check
+from reportlab.pdfgen import canvas
+
+from cohabio.local_config import GOOGLE_KEY
+from mapper.forms import ContactForm
+from mapper.functions.datetime_tools import request_counter
+from mapper.functions.deploy_probes import UserMatrix, LocationIntersection, adjust_intersect
+from mapper.functions.geocoding_tools import GeoLocator
+from mapper.functions.google_API import MAX_ENTRIES
+from mapper.functions.main import compare_users
+from mapper.functions.prepare_markers import html_check
 
 logger = logging.getLogger(__name__)
+
 
 def index(request):
     context = {
@@ -26,14 +29,83 @@ def index(request):
         'tim2': str(request.session.get('sesh_mcom2', 45)),
         'che1': request.session.get('sesh_chec1', ['', '', '', '']),
         'che2': request.session.get('sesh_chec1', ['', '', '', '']),
+        'api_key': GOOGLE_KEY,
     }
     return render(request, 'mapper/index_bootstrap.html', context)
+
+
+def index_node_map(request):
+    context = {
+        'loc1': str(request.session.get('sesh_work1', '')),
+        'loc2': str(request.session.get('sesh_work2', '')),
+        'tra1': request.session.get('sesh_tran1', ''),
+        'tra2': request.session.get('sesh_tran2', ''),
+        'tim1': str(request.session.get('sesh_mcom1', 45)),
+        'tim2': str(request.session.get('sesh_mcom2', 45)),
+        'che1': request.session.get('sesh_chec1', ['', '', '', '']),
+        'che2': request.session.get('sesh_chec1', ['', '', '', '']),
+        'api_key': GOOGLE_KEY,
+    }
+    return render(request, 'mapper/index_node_map.html', context)
+
+
+def node_map(request):
+    if request.method == 'POST':
+        geolocator = GeoLocator(logger=logger)
+
+        search_id1 = request.POST.get('textfield1', None)
+        search_id2 = request.POST.get('textfield2', None)
+        transport_id1 = request.POST.getlist('transport1', None)
+        transport_id2 = request.POST.getlist('transport2', None)
+        max_commute_id1 = request.POST.get('maxcommute1', None)
+        max_commute_id2 = request.POST.get('maxcommute2', None)
+        request.session['sesh_work1'] = search_id1
+        request.session['sesh_work2'] = search_id2
+        request.session['sesh_tran1'] = html_check(transport_id1)[0]
+        request.session['sesh_tran2'] = html_check(transport_id2)[0]
+        request.session['sesh_mcom1'] = max_commute_id1
+        request.session['sesh_mcom2'] = max_commute_id2
+        request.session['sesh_chec1'] = html_check(transport_id1)[1]
+        request.session['sesh_chec2'] = html_check(transport_id2)[1]
+
+        origin1, origin2 = geolocator.return_gps_from_place_names([search_id1, search_id2])
+
+        user1 = UserMatrix(origin=origin1, transport=transport_id1, max_commute=max_commute_id1)
+        user2 = UserMatrix(origin=origin2, transport=transport_id2, max_commute=max_commute_id2)
+        li = LocationIntersection()
+        probes1 = user1.get_user_matrix(li.scale)
+        probes2 = user2.get_user_matrix(li.scale)
+
+        reduced_intersect = adjust_intersect(
+            (origin1, origin2), (transport_id1, transport_id2), (max_commute_id1, max_commute_id2)
+        )
+
+        mean_gps = geolocator.average_gps(search_id1, search_id2)
+        work_coords = geolocator.return_gps_from_place_names([search_id1, search_id2])
+        work_names = [search_id1, search_id2]
+        who = ["you", "they"]
+        col = ["#428bca", "#d9534f"]
+        work_places = list(zip([[wc.latitude, wc.longitude] for wc in work_coords], work_names, who, col))
+        coords = [([float(place.latitude), float(place.longitude)], col[0]) for place in probes1]
+        coords.extend(([float(place.latitude), float(place.longitude)], col[1]) for place in probes2)
+        coords.extend(([float(place.latitude), float(place.longitude)], '#5cb85c') for place in reduced_intersect)
+
+        boxes = [(user1.bounds, col[0]), (user2.bounds, col[1])]
+
+        context = {
+            'mean_gps': mean_gps,
+            'places': coords,
+            'work_places': work_places,
+            'boxes': boxes
+        }
+        return render(request, 'mapper/map_all_probes.html', context)
+
 
 def search(request):
     if request.method == 'POST':
         quota_today = request_counter()
         logger.info('Total entries before: %i' % quota_today)
-        if quota_today > max_entries:
+        if quota_today > MAX_ENTRIES:
             return render(request, 'mapper/splashscreen.html')
         search_id1 = request.POST.get('textfield1', None)
         search_id2 = request.POST.get('textfield2', None)
@@ -105,6 +177,7 @@ def search(request):
         }
         return render(request, 'mapper/map7.html', context)
 
+
 def results_report(request):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="cohabio_report.pdf"'
@@ -151,11 +224,14 @@ def results_report(request):
     p.save()
     return response
 
-def acknowledgements (request):
+
+def acknowledgements(request):
     return render(request, 'mapper/acknowledgements.html')
 
-def about (request):
+
+def about(request):
     return render(request, 'mapper/about_us.html')
+
 
 def contact(request):
     form_class = ContactForm
@@ -172,11 +248,11 @@ def contact(request):
                 form_content = request.POST.get('content', '')
                 # Email the profile with the contact information
                 template = get_template('mapper/contact_template.txt')
-                context = Context({
+                context = {
                     'contact_name': contact_name,
                     'contact_email': contact_email,
                     'form_content': form_content,
-                })
+                }
                 content = template.render(context)
                 email = EmailMessage(
                     "New contact form submission",
@@ -197,3 +273,19 @@ def contact(request):
         'form': form_class,
         'from': request.GET.get('from', None),
     })
+
+
+def bad_request(request):
+    return render(request, 'mapper/400.html', {'status_code': 400})
+
+
+def permission_denied(request):
+    return render(request, 'mapper/403.html', {'status_code': 403})
+
+
+def page_not_found(request):
+    return render(request, 'mapper/404.html', {'status_code': 404})
+
+
+def server_error(request):
+    return render(request, 'mapper/500.html', {'status_code': 500})

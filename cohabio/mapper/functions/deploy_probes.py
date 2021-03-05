@@ -3,30 +3,33 @@ Functions that take two independent matrices of location coordinates, and return
 satisfy commute time criteria.
 """
 from collections import defaultdict
-import numpy as np
 from operator import itemgetter
 
-from .google_API import gmaps, max_entries
-from .datetime_tools import next_week_day, request_counter
-from .geocoding_tools import gps_from_km_sq
-from .prepare_markers import htmler
-from ..models import PlaceData
+import numpy as np
+
+from mapper.functions.google_API import gmaps_client, MAX_ENTRIES
+from mapper.functions.datetime_tools import next_week_day, request_counter
+from mapper.functions.geocoding_tools import deg_from_km_sq
+from mapper.functions.prepare_markers import htmler
+from mapper.models import PlaceData
 
 """
 Values represent approximate km^2 box around any origin; a reasonable expected distance of travel for each
 transport mode, when max_commute is 60 minutes (scale_factor).
 """
 modes = {
-    'transit': 250,
-    'driving': 90,
-    'bicycling': 19,
-    'walking': 5
+    'transit': 125,
+    'driving': 45,
+    'bicycling': 10,
+    'walking': 3
 }
 
 # TODO Convert print statements to logger messages in these functions
 
+
 class UserFilterEmpty(Exception):
     pass
+
 
 class UserMatrix(object):
     def __init__(self, origin, transport, max_commute):
@@ -34,6 +37,8 @@ class UserMatrix(object):
         self.longitude = origin.longitude
         self.transport = self._reduce_transport_options(transport)
         self.max_commute = max_commute
+        self.bounds = []
+
     @staticmethod
     def _reduce_transport_options(transport):
         """
@@ -42,19 +47,23 @@ class UserMatrix(object):
         for key, _ in sorted(modes.items(), key=lambda x: (x[1], x[0]), reverse=True):
             if key in transport:
                 return key
+
     def get_user_matrix(self, scale):
         """
         For a given scaling factor, adjusts a coordinate box around origin location and returns all PlaceData locations
         that fall within it.
         """
         scale_factor = scale * float(self.max_commute) / 60
-        lat_adj, lng_adj = gps_from_km_sq(modes[self.transport] * scale_factor, self.latitude)
+        coord_adj = deg_from_km_sq(modes[self.transport] * scale_factor)
+        self.bounds = [[self.latitude - abs(coord_adj), self.longitude - 2*abs(coord_adj)],
+                       [self.latitude + abs(coord_adj), self.longitude + 2*abs(coord_adj)]]
         return PlaceData.objects.filter(
-            latitude__gte=self.latitude - abs(lat_adj),
-            latitude__lte=self.latitude + abs(lat_adj),
-            longitude__gte=self.longitude - abs(lng_adj),
-            longitude__lte=self.longitude + abs(lng_adj)
+            latitude__gte=self.bounds[0][0],
+            latitude__lte=self.bounds[1][0],
+            longitude__gte=self.bounds[0][1],
+            longitude__lte=self.bounds[1][1]
         )
+
 
 class LocationIntersection(object):
     min = 100  # Minimum locations to probe
@@ -63,16 +72,20 @@ class LocationIntersection(object):
     idx = 0  # Index values along curve
     scale = 1  # Initial scale factor
     iterations = 0  # Initial iteration number
+
     def update(self, *args):
         self.intersect = args[0] & args[1]
         if self.iterations == 0:
             self.min = min(min(len(arg) for arg in args), self.min)
+
     def decrease_scale(self):
         self.scale -= self.curve[self.idx]
         if self.idx < 7:
             self.idx += 1
+
     def increase_scale(self):
         self.scale += self.curve[-1]
+
 
 def adjust_intersect(locations, modes, times):
     """
@@ -103,10 +116,12 @@ def adjust_intersect(locations, modes, times):
         li.iterations += 1
     return li.intersect
 
+
 def batches(iterable, n):
     l = len(iterable)
     for ndx in range(0, l, n):
         yield iterable[ndx:min(ndx + n, l)]
+
 
 def which_duration(output, user, origin, destinations, transport, max_commute):
     """
@@ -115,9 +130,9 @@ def which_duration(output, user, origin, destinations, transport, max_commute):
     """
     arrival = next_week_day(origin)
     count = 0
-    # Maximum of 100 destinations in a given distance_matrix API call
-    for batch in batches(destinations, n=100):
-        result = gmaps.distance_matrix(
+    # Maximum of 25 destinations in a given distance_matrix API call (without premium)
+    for batch in batches(destinations, n=25):
+        result = gmaps_client.distance_matrix(
             origins=((dest.latitude, dest.longitude) for dest in batch),
             destinations=(origin.latitude, origin.longitude),
             mode=transport,
@@ -140,6 +155,7 @@ def which_duration(output, user, origin, destinations, transport, max_commute):
         raise UserFilterEmpty('{} locations empty after filtering for max commute time for {}'.format(user, transport))
     print('{} locations after filtering for max commute time for {}: {}'.format(user, transport, count))
 
+
 def probe_gps_intersect(locations, modes, times, geolocator):
     """
     Find common pairs in both sets of probes, and remove duplicates. Then filter for max_commute times
@@ -156,7 +172,7 @@ def probe_gps_intersect(locations, modes, times, geolocator):
         user = 'user' + str(i + 1)
         for mode in prefs[1]:
             entry_count += len(intersect)
-            if quota_today + entry_count >= max_entries:
+            if quota_today + entry_count >= MAX_ENTRIES:
                 print('Maximum daily quota reached during {} distance_matrix API call'.format(user))
                 return 'maxed', entry_count
             try:
@@ -165,7 +181,8 @@ def probe_gps_intersect(locations, modes, times, geolocator):
                 return 'empty', entry_count
     for place, values in output.copy().items():
         if len(values) == len(origins):
-            # User list was already sorted by shortest duration, so we take tuple at 0th index. Duration is at 1st index of this.
+            # User list was already sorted by shortest duration, so we take tuple at 0th index.
+            # Duration is at 1st index of this.
             durations = [values.get(user)[0][1] for user in values]
             values['mean'] = np.mean(durations)
             values['stds'] = np.std(durations)

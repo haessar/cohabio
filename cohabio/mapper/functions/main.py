@@ -1,9 +1,11 @@
 import datetime
+
 import pytz
 
-from .deploy_probes import probe_gps_intersect
-from .prepare_markers import sorter
-from ..models import UserInfo
+from mapper.functions.deploy_probes import probe_gps_intersect
+from mapper.functions.prepare_markers import sorter
+from mapper.models import UserInfo
+
 
 def compare_users(locations, modes, times, geolocator):
     """
