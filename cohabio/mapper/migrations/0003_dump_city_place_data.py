@@ -6,6 +6,7 @@ from mapper.city_place_data import *
 CITIES_TO_ADD = [
     'london',
     'dc',
+    'glasgow',
 ]
 
 
