@@ -148,24 +148,19 @@ def search(request):
         )
 
         try:
-            output = compare_users(
-                locations=(search_id1, search_id2),
-                modes=(transport_id1, transport_id2),
-                times=(max_commute_id1, max_commute_id2),
-                geolocator=geolocator
-            )
-            quota_today = request_counter()
-            logger.info('Total entries after: {}'.format(quota_today))
+            output = compare_users(user1, user2)
+            quota_today = daily_elements()
+            logger.info('Total elements after: {}'.format(quota_today))
+        except EmptyIntersection as e:
+            logger.error(e)
+            messages.add_message(request, messages.INFO,
+                                 'No results! Try increasing commute times, or choosing a different transport method.')
+            return HttpResponseRedirect('/')
         except Exception as e:
             logger.error(e)
             messages.add_message(request, messages.INFO, "We're not sure what happened...")
             return HttpResponseRedirect('/')
         else:
-            if output == 'maxed':
-                return render(request, 'mapper/splashscreen.html')
-            if output == 'empty':
-                messages.add_message(request, messages.INFO, 'No results! Try increasing commute times, or choosing a different transport method.')
-                return HttpResponseRedirect('/')
             mean_gps = geolocator.average_gps(search_id1, search_id2)
             work_coords = geolocator.return_gps_from_place_names([search_id1, search_id2])
             work_names = [search_id1, search_id2]
