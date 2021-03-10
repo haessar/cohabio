@@ -1,4 +1,4 @@
 *.pyc
 /cohabio/db.sqlite3
-/cohabio/cohabio/local_config.py
+/cohabio/cohabio/secrets.py
 /venv/

@@ -4,7 +4,7 @@ from geopy.exc import GeocoderQuotaExceeded, GeocoderTimedOut
 from geopy.geocoders import GoogleV3
 import numpy as np
 
-from cohabio.local_config import GOOGLE_KEY
+from cohabio.config import GOOGLE_KEY
 
 
 def deg_from_km_sq(d):

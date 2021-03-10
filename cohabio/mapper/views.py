@@ -7,7 +7,7 @@ from django.core.mail import EmailMessage
 from django.contrib import messages
 from reportlab.pdfgen import canvas
 
-from cohabio.local_config import GOOGLE_KEY
+from cohabio.config import GOOGLE_KEY, MAX_ENTRIES
 from mapper.forms import ContactForm
 from mapper.functions.datetime_tools import request_counter
 from mapper.functions.deploy_probes import UserMatrix, LocationIntersection, adjust_intersect

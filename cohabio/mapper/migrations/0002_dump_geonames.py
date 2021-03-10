@@ -4,7 +4,7 @@ from django.db import migrations
 import pandas as pd
 
 from cohabio.settings import MEDIA_ROOT
-from cohabio.local_config import GEONAMES_FILENAME
+from cohabio.config import GEONAMES_FILENAME
 
 
 def _get_table_columns_intersect(columns, model):
