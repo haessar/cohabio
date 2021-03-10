@@ -30,7 +30,11 @@ def html_check(transports):
         out_checked[index] = replacement
     return [out_active, out_checked]
 
-def htmler(place, values):
+
+def htmler(place, mean, std, *args):
+    """
+    Construct html string to be used for marker popup, for given place and users.
+    """
     user_template = '<p>Travel time for {user}: <i class="fa {icon}"></i> {duration} mins{duplicate}</p>'
     user_html = ''
     for user in args:
@@ -51,10 +55,22 @@ def htmler(place, values):
     return '<h3>{place}</h3>{user_html}<h4>Mean travel time: {mean} mins</h4><h4>Standard deviation: {std} mins</h4>'.format(
         place=place,
         user_html=user_html,
-        mean=values['mean'],
-        std=values['stds']
+        mean=mean,
+        std=std
     )
 
 
 def sorter(data, std_weight):
-    return OrderedDict(sorted(data.items(), key=lambda x: x[1]['mean'] + std_weight * x[1]['stds']))
+    """
+    Sort marker data by combination of mean and standard deviation (with std_weight factor applied).
+    :param data: dict of the form
+        {
+            <PlaceData>: {
+                'mean': float,
+                'std': float,
+                'html': str,
+            },
+            ...
+        }
+    """
+    return OrderedDict(sorted(data.items(), key=lambda x: x[1]['mean'] + std_weight * x[1]['std']))
