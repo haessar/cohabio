@@ -39,6 +39,16 @@ class GeoLocator(GoogleV3):
                 list_of_coords.append(gps)
         return list_of_coords
 
+    def coords_from_place_name(self, place_name):
+        while True:
+            try:
+                coords = self.geocode(place_name)
+                break
+            except (GeocoderTimedOut, GeocoderQuotaExceeded):
+                self.logger.warning('Failed to geocode. Sleeping.')
+                time.sleep(5)
+        return coords
+
     def average_gps(self, gps1, gps2):
         """
         Calculates the mean latitude and longitude of two given gps coordinates.

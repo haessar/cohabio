@@ -1,3 +1,4 @@
+from collections import defaultdict, OrderedDict
 import logging
 
 from django.shortcuts import render
@@ -9,12 +10,12 @@ from reportlab.pdfgen import canvas
 
 from cohabio.config import GOOGLE_KEY, MAX_ENTRIES
 from mapper.forms import ContactForm
-from mapper.functions.datetime_tools import request_counter
-from mapper.functions.deploy_probes import UserMatrix, LocationIntersection, adjust_intersect
-from mapper.functions.geocoding_tools import GeoLocator
-from mapper.functions.google_API import MAX_ENTRIES
-from mapper.functions.main import compare_users
-from mapper.functions.prepare_markers import html_check
+from mapper.utils.dt import daily_elements
+from mapper.utils.search import DynamicIntersection, EmptyIntersection
+from mapper.utils.geo import GeoLocator
+from mapper.utils.search import compare_users
+from mapper.utils.pins import html_check
+from mapper.utils.sets import UserSet
 
 logger = logging.getLogger(__name__)
 
@@ -70,15 +71,13 @@ def node_map(request):
 
         origin1, origin2 = geolocator.return_gps_from_place_names([search_id1, search_id2])
 
-        user1 = UserMatrix(origin=origin1, transport=transport_id1, max_commute=max_commute_id1)
-        user2 = UserMatrix(origin=origin2, transport=transport_id2, max_commute=max_commute_id2)
-        li = LocationIntersection()
-        probes1 = user1.get_user_matrix(li.scale)
-        probes2 = user2.get_user_matrix(li.scale)
+        user1 = UserSet(workplace=origin1, modes=transport_id1, max_time=max_commute_id1)
+        user2 = UserSet(workplace=origin2, modes=transport_id2, max_time=max_commute_id2)
+        li = DynamicIntersection()
+        probes1 = user1.get_nodes_within_boundary(li.scale)
+        probes2 = user2.get_nodes_within_boundary(li.scale)
 
-        reduced_intersect = adjust_intersect(
-            (origin1, origin2), (transport_id1, transport_id2), (max_commute_id1, max_commute_id2)
-        )
+        reduced_intersect = li.adjust_intersect(user1, user2)
 
         mean_gps = geolocator.average_gps(search_id1, search_id2)
         work_coords = geolocator.return_gps_from_place_names([search_id1, search_id2])
@@ -90,7 +89,7 @@ def node_map(request):
         coords.extend(([float(place.latitude), float(place.longitude)], col[1]) for place in probes2)
         coords.extend(([float(place.latitude), float(place.longitude)], '#5cb85c') for place in reduced_intersect)
 
-        boxes = [(user1.bounds, col[0]), (user2.bounds, col[1])]
+        boxes = [(user1.boundary, col[0]), (user2.boundary, col[1])]
 
         context = {
             'mean_gps': mean_gps,
@@ -103,8 +102,8 @@ def node_map(request):
 
 def search(request):
     if request.method == 'POST':
-        quota_today = request_counter()
-        logger.info('Total entries before: %i' % quota_today)
+        quota_today = daily_elements()
+        logger.info('Total elements before: %i' % quota_today)
         if quota_today > MAX_ENTRIES:
             return render(request, 'mapper/splashscreen.html')
         search_id1 = request.POST.get('textfield1', None)
@@ -131,7 +130,23 @@ def search(request):
         if error_message:
             messages.add_message(request, messages.INFO, error_message)
             return HttpResponseRedirect('/')
+
         geolocator = GeoLocator(logger=logger)
+        user1 = UserSet(
+            workplace=search_id1,
+            modes=transport_id1,
+            max_time=max_commute_id1,
+            geolocator=geolocator,
+            name="you"
+        )
+        user2 = UserSet(
+            workplace=search_id2,
+            modes=transport_id2,
+            max_time=max_commute_id2,
+            geolocator=geolocator,
+            name="them"
+        )
+
         try:
             output = compare_users(
                 locations=(search_id1, search_id2),
@@ -157,6 +172,7 @@ def search(request):
             who = ["you", "they"]
             col = ["#428bca", "#d9534f"]
             work_places = list(zip([[wc.latitude, wc.longitude] for wc in work_coords], work_names, who, col))
+
             coords = [[float(place.latitude), float(place.longitude)] for place in output]
             html = [pl['html'] for pl in output.values()]
             context = {
