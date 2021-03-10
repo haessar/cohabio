@@ -4,7 +4,7 @@ from geopy.exc import GeocoderQuotaExceeded, GeocoderTimedOut
 from geopy.geocoders import GoogleV3
 import numpy as np
 
-from cohabio.local_config import GOOGLE_KEY
+from cohabio.config import GOOGLE_KEY
 
 
 def deg_from_km_sq(d):
@@ -38,6 +38,16 @@ class GeoLocator(GoogleV3):
             else:
                 list_of_coords.append(gps)
         return list_of_coords
+
+    def coords_from_place_name(self, place_name):
+        while True:
+            try:
+                coords = self.geocode(place_name)
+                break
+            except (GeocoderTimedOut, GeocoderQuotaExceeded):
+                self.logger.warning('Failed to geocode. Sleeping.')
+                time.sleep(5)
+        return coords
 
     def average_gps(self, gps1, gps2):
         """

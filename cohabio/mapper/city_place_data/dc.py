@@ -3,7 +3,7 @@ import json
 
 from tqdm import tqdm
 
-from cohabio.local_config import WMATA_KEY
+from cohabio.config import WMATA_KEY
 
 header = {
     'api_key': WMATA_KEY
