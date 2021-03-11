@@ -10,6 +10,7 @@ glasgow_data_dir = os.path.join(MEDIA_ROOT, 'mapper', 'city_data', 'glasgow')
 
 subways_path = os.path.join(glasgow_data_dir, 'glasgow-subway-station-locations.csv')
 rail_path = os.path.join(glasgow_data_dir, 'glw-railreferences.csv')
+datazones_path = os.path.join(glasgow_data_dir, 'b50723180f1742b480ff94b11c445638datazonewitheastingsandnorthings.csv')
 
 
 def add_glasgow(model):
@@ -36,6 +37,20 @@ def add_glasgow(model):
             name=station['Station Name'],
             latitude=station['lat'],
             longitude=station['lon'],
+            country_code='GB',
+            source='glasgow'
+        )
+        place.save()
+
+    datazones = pd.read_csv(datazones_path)
+    # Multiple rows share the same name but different coordinates, so group-by and take the mean.
+    datazones = datazones.groupby(by="Intermediate Geography Name").mean()
+
+    for idx, zone in tqdm(datazones.iterrows(), total=len(datazones), desc='Glasgow Data Zones'):
+        place, created = model.objects.get_or_create(
+            name=zone.name,
+            latitude=zone['Latitude'],
+            longitude=zone['Longitude'],
             country_code='GB',
             source='glasgow'
         )
