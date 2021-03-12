@@ -18,7 +18,12 @@ def forwards_func(apps, schema_editor):
     for city, info in tqdm(CITIES_TO_ADD.items(), total=len(CITIES_TO_ADD), desc='Dump city data'):
         # Delete GeoNames record
         try:
-            PlaceData.objects.get(name=info['verbose_name'], country_code=info['country'], source='geonames').delete()
+            geonames_place = (
+                PlaceData.objects.filter(name=info['verbose_name'], country_code=info['country'], source='geonames')
+                                 .order_by('-population')
+                                 .first()
+            )
+            geonames_place.delete()
         except Exception:
             pass
 
