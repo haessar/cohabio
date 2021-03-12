@@ -14,7 +14,7 @@ datazones_path = os.path.join(glasgow_data_dir, 'b50723180f1742b480ff94b11c44563
 cols = ['name', 'latitude', 'longitude']
 
 
-def add_glasgow(model):
+def add_glasgow():
     tube = pd.read_csv(subways_path)
     tube = tube[pd.notnull(tube['Station Name'])]
     tube = tube.rename(columns={'Station Name': 'name'})
@@ -28,12 +28,6 @@ def add_glasgow(model):
     lon, lat = convert_lonlat(stations['Easting'].to_list(), stations['Northing'].to_list())
     stations['longitude'] = lon
     stations['latitude'] = lat
-
-    # Delete GeoNames record for Glasgow
-    try:
-        model.objects.get(name='Glasgow', country_code='GB', source='geonames').delete()
-    except Exception:
-        pass
 
     yield stations[cols].to_dict('records')
 

@@ -5,9 +5,9 @@ from mapper.city_place_data import *
 
 
 CITIES_TO_ADD = {
-    'london': 'GB',
-    'washington_dc': 'US',
-    'glasgow': 'GB',
+    'london': {'country': 'GB', 'verbose_name': 'London'},
+    'washington_dc': {'country': 'US', 'verbose_name': 'London'},
+    'glasgow': {'country': 'GB', 'verbose_name': 'Glasgow'},
 }
 
 
@@ -15,10 +15,16 @@ def forwards_func(apps, schema_editor):
     PlaceData = apps.get_model("mapper", "PlaceData")
     db_alias = schema_editor.connection.alias
 
-    for city, country in tqdm(CITIES_TO_ADD.items(), total=len(CITIES_TO_ADD), desc='Dump city data'):
-        for records in getattr(globals()[city], 'add_{}'.format(city))(PlaceData):
+    for city, info in tqdm(CITIES_TO_ADD.items(), total=len(CITIES_TO_ADD), desc='Dump city data'):
+        # Delete GeoNames record
+        try:
+            PlaceData.objects.get(name=info['verbose_name'], country_code=info['country'], source='geonames').delete()
+        except Exception:
+            pass
+
+        for records in getattr(globals()[city], 'add_{}'.format(city))():
             PlaceData.objects.using(db_alias).bulk_create(
-                PlaceData(**{**vals, 'source': city, 'country_code': country}) for vals in records
+                PlaceData(**{**vals, 'source': city, 'country_code': info['country']}) for vals in records
             )
 
 
