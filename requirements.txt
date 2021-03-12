@@ -8,6 +8,7 @@ googlemaps==2.5.1
 idna==2.6
 mysqlclient==1.3.12
 numpy
+openpyxl==3.0.6
 pandas==1.2.3
 Pillow==5.1.0
 python-dateutil==2.7.3

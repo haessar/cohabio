@@ -13,12 +13,15 @@ cols = ['name', 'latitude', 'longitude']
 
 
 def add_washington_dc():
-    conn = http.client.HTTPSConnection('api.wmata.com')
-    conn.request("GET", "/Rail.svc/json/jStations", "{body}", header)
-    response = conn.getresponse()
-    data = response.read()
-    conn.close()
-    stations = json.loads(data)['Stations']
-    stations = pd.DataFrame(stations).rename(columns={'Name': 'name', 'Lat': 'latitude', 'Lon': 'longitude'})
+    try:
+        conn = http.client.HTTPSConnection('api.wmata.com')
+        conn.request("GET", "/Rail.svc/json/jStations", "{body}", header)
+        response = conn.getresponse()
+        data = response.read()
+        conn.close()
+        stations = json.loads(data)['Stations']
+        stations = pd.DataFrame(stations).rename(columns={'Name': 'name', 'Lat': 'latitude', 'Lon': 'longitude'})
 
-    yield stations[cols].to_dict('records')
+        yield stations[cols].to_dict('records')
+    except ConnectionRefusedError:
+        yield []

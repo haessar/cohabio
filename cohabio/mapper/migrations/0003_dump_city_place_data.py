@@ -16,21 +16,21 @@ def forwards_func(apps, schema_editor):
     db_alias = schema_editor.connection.alias
 
     for city, info in tqdm(CITIES_TO_ADD.items(), total=len(CITIES_TO_ADD), desc='Dump city data'):
-        # Delete GeoNames record
-        try:
-            geonames_place = (
-                PlaceData.objects.filter(name=info['verbose_name'], country_code=info['country'], source='geonames')
-                                 .order_by('-population')
-                                 .first()
-            )
-            geonames_place.delete()
-        except Exception:
-            pass
-
         for records in getattr(globals()[city], 'add_{}'.format(city))():
             PlaceData.objects.using(db_alias).bulk_create(
                 PlaceData(**{**vals, 'source': city, 'country_code': info['country']}) for vals in records
             )
+        # Delete GeoNames record if city data successfully inserted.
+        if records:
+            try:
+                geonames_place = (
+                    PlaceData.objects.filter(name=info['verbose_name'], country_code=info['country'], source='geonames')
+                        .order_by('-population')
+                        .first()
+                )
+                geonames_place.delete()
+            except Exception:
+                pass
 
 
 def reverse_func(apps, schema_editor):

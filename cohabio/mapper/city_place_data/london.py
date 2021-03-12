@@ -101,5 +101,6 @@ def add_london():
         df_no_usage, tube, usage['tube']['name_column'], usage['tube']['value_column']
     )
     df = pd.concat([df_rail_usage, df_tube_usage]).sort_index()
+    df['usage'] = df['usage'].where(pd.notnull(df['usage']), None)
 
     yield df.to_dict('records')

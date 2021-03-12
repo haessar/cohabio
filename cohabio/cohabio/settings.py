@@ -25,7 +25,7 @@ SECRET_KEY = 'd&9x#i&4rnjop6rvaxkc+9b_e=h=t1e*-%kan!qy1ycaxd!8bm'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['138.68.152.165']
+ALLOWED_HOSTS = ['138.68.152.165', 'cohabio.eu.pythonanywhere.com']
 
 
 # Application definition
@@ -77,10 +77,12 @@ WSGI_APPLICATION = 'cohabio.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'OPTIONS': {
-	    'read_default_file': '/etc/mysql/my.cnf',
+        'NAME': 'cohabio$default',
+        'USER': 'cohabio',
+        'PASSWORD': '53HoC2KXaVa6',
+        'HOST': 'cohabio.mysql.eu.pythonanywhere-services.com',
+        'PORT': '3306',
 	},
-    }
 }
 
 
