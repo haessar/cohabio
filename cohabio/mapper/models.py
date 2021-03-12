@@ -23,7 +23,7 @@ class PlaceData(models.Model):
     latitude = models.DecimalField(max_digits=20, decimal_places=8)
     longitude = models.DecimalField(max_digits=20, decimal_places=8)
     population = models.IntegerField(null=True)
-    usage = models.IntegerField(null=True)
+    usage = models.FloatField(null=True)
     country_code = models.CharField(max_length=5)
     source = models.CharField(max_length=10)
 
