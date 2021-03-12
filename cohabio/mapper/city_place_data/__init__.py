@@ -1,6 +1,6 @@
 """
-Each sub-module should contain functions "add_X" and "del_X", where X is the name of the sub-module.
-e.g. "add_london", "del_london" in london.py
+Each sub-module should contain functions "add_X", where X is the name of the sub-module.
+e.g. "add_london" in london.py
 """
 import os
 import pkgutil
