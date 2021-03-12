@@ -12,7 +12,7 @@ header = {
 cols = ['name', 'latitude', 'longitude']
 
 
-def add_washington_dc(model):
+def add_washington_dc():
     conn = http.client.HTTPSConnection('api.wmata.com')
     conn.request("GET", "/Rail.svc/json/jStations", "{body}", header)
     response = conn.getresponse()
@@ -20,11 +20,5 @@ def add_washington_dc(model):
     conn.close()
     stations = json.loads(data)['Stations']
     stations = pd.DataFrame(stations).rename(columns={'Name': 'name', 'Lat': 'latitude', 'Lon': 'longitude'})
-
-    # Delete GeoNames record for Washington DC
-    try:
-        model.objects.get(name='Washington', country_code='US', source='geonames').delete()
-    except Exception:
-        pass
 
     yield stations[cols].to_dict('records')

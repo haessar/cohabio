@@ -83,17 +83,11 @@ def _prepare_tube_usage_df(path):
     return df.sort_values('million', ascending=False).drop_duplicates('Station')
 
 
-def add_london(model):
+def add_london():
     gpx_file = open(locations_path, 'r')
     gpx = gpxpy.parse(gpx_file)
     rail = _prepare_rail_usage_df(rail_usage_path)
     tube = _prepare_tube_usage_df(tube_usage_path)
-
-    # Delete GeoNames record for London
-    try:
-        model.objects.get(name='London', country_code='GB', source='geonames').delete()
-    except Exception:
-        pass
 
     records = [{'name': wp.name,
           'latitude': wp.latitude,
