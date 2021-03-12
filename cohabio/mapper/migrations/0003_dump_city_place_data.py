@@ -6,7 +6,7 @@ from mapper.city_place_data import *
 
 CITIES_TO_ADD = {
     'london': {'country': 'GB', 'verbose_name': 'London'},
-    'washington_dc': {'country': 'US', 'verbose_name': 'London'},
+    'washington_dc': {'country': 'US', 'verbose_name': 'Washington'},
     'glasgow': {'country': 'GB', 'verbose_name': 'Glasgow'},
 }
 
@@ -18,7 +18,12 @@ def forwards_func(apps, schema_editor):
     for city, info in tqdm(CITIES_TO_ADD.items(), total=len(CITIES_TO_ADD), desc='Dump city data'):
         # Delete GeoNames record
         try:
-            PlaceData.objects.get(name=info['verbose_name'], country_code=info['country'], source='geonames').delete()
+            geonames_place = (
+                PlaceData.objects.filter(name=info['verbose_name'], country_code=info['country'], source='geonames')
+                                 .order_by('-population')
+                                 .first()
+            )
+            geonames_place.delete()
         except Exception:
             pass
 
