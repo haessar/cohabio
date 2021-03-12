@@ -1,7 +1,7 @@
 import http.client
 import json
 
-from tqdm import tqdm
+import pandas as pd
 
 from cohabio.config import WMATA_KEY
 
@@ -9,14 +9,17 @@ header = {
     'api_key': WMATA_KEY
 }
 
+cols = ['name', 'latitude', 'longitude']
 
-def add_dc(model):
+
+def add_washington_dc(model):
     conn = http.client.HTTPSConnection('api.wmata.com')
     conn.request("GET", "/Rail.svc/json/jStations", "{body}", header)
     response = conn.getresponse()
     data = response.read()
     conn.close()
     stations = json.loads(data)['Stations']
+    stations = pd.DataFrame(stations).rename(columns={'Name': 'name', 'Lat': 'latitude', 'Lon': 'longitude'})
 
     # Delete GeoNames record for Washington DC
     try:
@@ -24,16 +27,4 @@ def add_dc(model):
     except Exception:
         pass
 
-    for station in tqdm(stations, total=len(stations), desc='Washington DC stations'):
-        place, created = model.objects.get_or_create(
-            name=station['Name'],
-            latitude=station['Lat'],
-            longitude=station['Lon'],
-            country_code='US',
-            source='dc'
-        )
-        place.save()
-
-
-def del_dc(model):
-    model.objects.filter(source="dc").delete()
+    yield stations[cols].to_dict('records')
