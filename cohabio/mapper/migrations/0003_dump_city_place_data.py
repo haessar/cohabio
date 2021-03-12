@@ -6,7 +6,7 @@ from mapper.city_place_data import *
 
 CITIES_TO_ADD = {
     'london': {'country': 'GB', 'verbose_name': 'London'},
-    'washington_dc': {'country': 'US', 'verbose_name': 'London'},
+    'washington_dc': {'country': 'US', 'verbose_name': 'Washington'},
     'glasgow': {'country': 'GB', 'verbose_name': 'Glasgow'},
 }
 
