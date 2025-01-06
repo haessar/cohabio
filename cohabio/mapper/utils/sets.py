@@ -114,7 +114,7 @@ class UserSet:
             for mode in self.modes:
                 for batch in self._iter_batches(intersect, n=MAX_BATCH_SIZE):
                     result = gmaps_client.distance_matrix(
-                        origins=((point.latitude, point.longitude) for point in batch),
+                        origins=[(point.latitude, point.longitude) for point in batch],
                         destinations=(self.latitude, self.longitude),
                         mode=mode,
                         arrival_time=arrival

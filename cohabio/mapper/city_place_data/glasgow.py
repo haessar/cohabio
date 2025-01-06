@@ -15,7 +15,7 @@ cols = ['name', 'latitude', 'longitude']
 
 
 def add_glasgow():
-    tube = pd.read_csv(subways_path)
+    tube = pd.read_csv(subways_path, encoding="cp1252")
     tube = tube[pd.notnull(tube['Station Name'])]
     tube = tube.rename(columns={'Station Name': 'name'})
 
@@ -33,7 +33,14 @@ def add_glasgow():
 
     datazones = pd.read_csv(datazones_path)
     # Multiple rows share the same name but different coordinates, so group-by and take the mean.
-    datazones = datazones.groupby(by="Intermediate Geography Name").mean()
+    datazones = datazones.groupby(by="Intermediate Geography Name").agg({
+        "Data Zone": "first",
+        "Local Authority Name": "first",
+        "Northing": "mean",
+        "Easting": "mean",
+        "Longitude": "mean",
+        "Latitude": "mean"
+    })
     datazones['name'] = datazones.index
     datazones = datazones.rename(columns={'Longitude': 'longitude', 'Latitude': 'latitude'})
 
