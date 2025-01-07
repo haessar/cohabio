@@ -9,6 +9,7 @@ from django.contrib import messages
 from reportlab.pdfgen import canvas
 
 from cohabio.config import GOOGLE_KEY, MAX_ENTRIES
+from cohabio.secrets import SECRET_EMAIL_HOST_USER
 from mapper.forms import ContactForm
 from mapper.utils.dt import daily_elements
 from mapper.utils.search import DynamicIntersection, EmptyIntersection
@@ -92,7 +93,7 @@ def node_map(request):
         boxes = [(user1.boundary, col[0]), (user2.boundary, col[1])]
 
         context = {
-            'mean_gps': mean_gps,
+            'mean_gps': list(map(float, mean_gps)),
             'places': coords,
             'work_places': work_places,
             'boxes': boxes
@@ -171,7 +172,7 @@ def search(request):
             coords = [[float(place.latitude), float(place.longitude)] for place in output]
             html = [pl['html'] for pl in output.values()]
             context = {
-                'mean_gps': mean_gps,
+                'mean_gps': list(map(float, mean_gps)),
                 'places': list(zip(coords, html)),
                 'work_places': work_places,
             }
@@ -269,7 +270,7 @@ def contact(request):
                     "New contact form submission",
                     content,
                     "cohabio" + '',
-                    ['contact.cohabio@gmail.com'],
+                    [SECRET_EMAIL_HOST_USER],
                     headers={'Reply-To': contact_email}
                 )
                 email.send()
@@ -286,15 +287,15 @@ def contact(request):
     })
 
 
-def bad_request(request):
+def bad_request(request, exception):
     return render(request, 'mapper/400.html', {'status_code': 400})
 
 
-def permission_denied(request):
+def permission_denied(request, exception):
     return render(request, 'mapper/403.html', {'status_code': 403})
 
 
-def page_not_found(request):
+def page_not_found(request, exception):
     return render(request, 'mapper/404.html', {'status_code': 404})
 
 
