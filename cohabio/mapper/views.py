@@ -9,6 +9,7 @@ from django.contrib import messages
 from reportlab.pdfgen import canvas
 
 from cohabio.config import GOOGLE_KEY, MAX_ENTRIES
+from cohabio.secrets import SECRET_EMAIL_HOST_USER
 from mapper.forms import ContactForm
 from mapper.utils.dt import daily_elements
 from mapper.utils.search import DynamicIntersection, EmptyIntersection
@@ -269,7 +270,7 @@ def contact(request):
                     "New contact form submission",
                     content,
                     "cohabio" + '',
-                    ['contact.cohabio@gmail.com'],
+                    [SECRET_EMAIL_HOST_USER],
                     headers={'Reply-To': contact_email}
                 )
                 email.send()
