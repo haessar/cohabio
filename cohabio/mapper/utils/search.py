@@ -33,6 +33,8 @@ def compare_users(user1, user2):
             output[place]['mean'] = mean
             output[place]['std'] = std
             output[place]['html'] = htmler(place, mean, std, user1, user2)
+            output[place]['user1'] = user1.matches[place]
+            output[place]['user2'] = user2.matches[place]
         if not output:
             raise EmptyIntersection('Intersection of locations empty after filtering for max commute times')
     finally:
